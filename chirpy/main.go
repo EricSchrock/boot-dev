@@ -21,7 +21,7 @@ func main() {
 
 	// Back-end APIs
 	mux.HandleFunc("GET /api/healthz", healthHandler)
-	mux.HandleFunc("GET /api/metrics", apiCfg.metricsHandler)
+	mux.HandleFunc("GET /admin/metrics", apiCfg.metricsHandler)
 	mux.HandleFunc("/api/reset", apiCfg.resetHandler)
 
 	corsMux := middlewareCors(mux)
@@ -46,9 +46,9 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *apiConfig) metricsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Hits: %v", cfg.fileserverHits)))
+	w.Write([]byte(fmt.Sprintf("<html>\n\n<body>\n\t<h1>Welcome, Chirpy Admin</h>\n\t<p>Chirpy has been visited %v times!</p>\n</body>\n\n</html>", cfg.fileserverHits)))
 }
 
 func (cfg *apiConfig) resetHandler(w http.ResponseWriter, r *http.Request) {
