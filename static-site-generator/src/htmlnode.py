@@ -2,9 +2,6 @@ from typing import Dict, List, Self
 
 class HTMLNode:
     def __init__(self, tag: str = None, value: str = None, children: List[Self] = None, props: Dict[str, str] = None):
-        if not value and not children:
-            raise RuntimeError("value and children cannot both be None")
-
         self.tag = tag
         self.value = value
         self.children = children
@@ -40,3 +37,22 @@ class LeafNode(HTMLNode):
 
     def __repr__(self):
         return f"LeafNode({self.tag}, {self.value}, {self.props})"
+
+class ParentNode(HTMLNode):
+    def __init__(self, tag: str = None, children: List[Self] = None, props: Dict[str, str] = None):
+        if not tag:
+            raise ValueError("tag must be set")
+
+        if not children:
+            raise ValueError("children must be set")
+
+        if not len(children) > 0:
+            raise ValueError("must have at least one child")
+
+        super().__init__(tag=tag, children=children, props=props)
+
+    def to_html(self):
+        return f'<{self.tag}{self.props_to_html()}>{"".join([c.to_html() for c in self.children])}</{self.tag}>'
+
+    def __repr__(self) -> str:
+        return f"ParentNode({self.tag}, children: {self.children}, {self.props})"
