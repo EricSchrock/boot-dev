@@ -23,10 +23,20 @@ class HTMLNode:
         return html
 
     def __repr__(self) -> str:
-        repr = f"tag: {self.tag} | value: {self.value} | props: {self.props_to_html()} | children:"
+        return f"HTMLNode({self.tag}, {self.value}, children: {self.children}, {self.props})"
 
-        if self.children:
-            for child in self.children:
-                repr += f" {child.tag}"
+class LeafNode(HTMLNode):
+    def __init__(self, tag: str = None, value: str = None, props: Dict[str, str] = None):
+        if not value:
+            raise ValueError("value must be set")
 
-        return repr
+        super().__init__(tag=tag, value=value, props=props)
+
+    def to_html(self) -> str:
+        if not self.tag:
+            return self.value
+
+        return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+
+    def __repr__(self):
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
