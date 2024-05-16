@@ -53,6 +53,45 @@ class TestTextNode(unittest.TestCase):
         html = LeafNode(value="Hello")
         self.assertEqual(text.to_html_node(), html)
 
+    def test_split_non_text(self):
+        node = TextNode("Test", "code")
+        self.assertEqual([node], node.split('*'))
+
+    def test_split_invalid_delimiter(self):
+        with self.assertRaises(ValueError):
+            TextNode("Test", "text").split('_')
+
+    def test_split_unmatched_delimiter(self):
+        with self.assertRaises(ValueError):
+            TextNode("Test **test test", "text").split('**')
+
+        with self.assertRaises(ValueError):
+            TextNode("Test **test* test", "text").split('**')
+
+    def test_split_nothing_to_split(self):
+        node = TextNode("Test", "text")
+        self.assertEqual([node], node.split('*'))
+
+    def test_split(self):
+        self.assertEqual(TextNode("Test **test**", "text").split('**'), [TextNode("Test ", "text"), TextNode("test", "bold")])
+        self.assertEqual(TextNode("*Test* test", "text").split('*'), [TextNode("Test", "italic"), TextNode(" test", "text")])
+        self.assertEqual(TextNode("`Test test`", "text").split('`'), [TextNode("Test test", "code")])
+
+    def test_split_order(self):
+        node = TextNode("Test **bold** advances in `code` and such", "text")
+        bold_first = node.split('**')
+        code_first = node.split('`')
+        self.assertNotEqual(bold_first, code_first)
+
+        code_second = []
+        for node in bold_first:
+            code_second.extend(node.split('`'))
+
+        bold_second = []
+        for node in code_first:
+            bold_second.extend(node.split('**'))
+
+        self.assertEqual(code_second, bold_second)
 
 if __name__ == "__main__":
     unittest.main()

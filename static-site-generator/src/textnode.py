@@ -1,4 +1,5 @@
 from htmlnode import LeafNode
+from typing import List, Self
 
 class TextNode:
     def __init__(self, text: str, text_type: str, url: str = None):
@@ -34,4 +35,30 @@ class TextNode:
             return LeafNode(tag="a", value=self.text, props={"href": self.url})
         if self.text_type == "image":
             return LeafNode(tag="img", value="", props={"src": self.url, "alt": self.text})
-        raise ValueError("Unsupported node type")
+        raise ValueError("unsupported node type")
+
+    def split(self, delimiter: str) -> List[Self]:
+        if self.text_type != "text":
+            return [self]
+
+        types = {'**': 'bold', '*': "italic", '`': "code"}
+
+        if delimiter not in types.keys():
+            raise ValueError(f"delimiter={delimiter} is invalid")
+
+        splits = self.text.split(delimiter)
+        if len(splits) % 2 == 0:
+            raise ValueError(f"unpaired {delimiter} delimiter (syntax error)")
+
+        nodes = []
+        types = ["text", types[delimiter]]
+        while len(splits) > 0:
+            index = 1 if len(splits) % 2 == 0 else 0
+            text = splits.pop(0)
+            if not text:
+                continue
+
+            nodes.append(TextNode(text, types[index]))
+
+        return nodes
+
