@@ -7,6 +7,12 @@ class HTMLNode:
         self.children = children
         self.props = props
 
+    def __eq__(self, other):
+        return (self.tag == other.tag) and (self.value == other.value) and (self.children == other.children) and (self.props == other.props)
+
+    def __repr__(self) -> str:
+        return f"HTMLNode({self.tag}, {self.value}, children: {self.children}, {self.props})"
+
     def to_html(self) -> str:
         raise NotImplementedError()
 
@@ -19,9 +25,6 @@ class HTMLNode:
             html += f' {k}="{v}"'
         return html
 
-    def __repr__(self) -> str:
-        return f"HTMLNode({self.tag}, {self.value}, children: {self.children}, {self.props})"
-
 class LeafNode(HTMLNode):
     def __init__(self, tag: str = None, value: str = None, props: Dict[str, str] = None):
         if value is None:
@@ -29,14 +32,14 @@ class LeafNode(HTMLNode):
 
         super().__init__(tag=tag, value=value, props=props)
 
+    def __repr__(self):
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
+
     def to_html(self) -> str:
         if not self.tag:
             return self.value
 
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
-
-    def __repr__(self):
-        return f"LeafNode({self.tag}, {self.value}, {self.props})"
 
 class ParentNode(HTMLNode):
     def __init__(self, tag: str = None, children: List[Self] = None, props: Dict[str, str] = None):
@@ -51,8 +54,8 @@ class ParentNode(HTMLNode):
 
         super().__init__(tag=tag, children=children, props=props)
 
-    def to_html(self):
-        return f'<{self.tag}{self.props_to_html()}>{"".join([c.to_html() for c in self.children])}</{self.tag}>'
-
     def __repr__(self) -> str:
         return f"ParentNode({self.tag}, children: {self.children}, {self.props})"
+
+    def to_html(self):
+        return f'<{self.tag}{self.props_to_html()}>{"".join([c.to_html() for c in self.children])}</{self.tag}>'
