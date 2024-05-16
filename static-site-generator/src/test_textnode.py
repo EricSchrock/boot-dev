@@ -93,5 +93,13 @@ class TestTextNode(unittest.TestCase):
 
         self.assertEqual(code_second, bold_second)
 
+    def test_extract_images(self):
+        node = TextNode("Text with ![two](https://example.com) ![images](https://example.com) and also a [couple](https://example.com) [links](https://example.com)", "text")
+        self.assertEqual(node.extract_images(), [("two", "https://example.com"), ("images", "https://example.com")])
+
+    def test_extract_links(self):
+        node = TextNode("Text with ![two](https://example.com) ![images](https://example.com) and also a [couple](https://example.com) [links](https://example.com)", "text")
+        self.assertEqual(node.extract_links(), [("couple", "https://example.com"), ("links", "https://example.com")])
+
 if __name__ == "__main__":
     unittest.main()

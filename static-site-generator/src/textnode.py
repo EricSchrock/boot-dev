@@ -1,4 +1,5 @@
 from htmlnode import LeafNode
+import re
 from typing import List, Self
 
 class TextNode:
@@ -62,3 +63,8 @@ class TextNode:
 
         return nodes
 
+    def extract_images(self):
+        return re.findall(r"!\[(.*?)\]\((.*?)\)", self.text)
+
+    def extract_links(self):
+        return re.findall(r"[^!]\[(.*?)\]\((.*?)\)", self.text)

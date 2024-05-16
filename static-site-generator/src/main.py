@@ -1,16 +1,6 @@
 from textnode import TextNode
 
-node = TextNode("Test a **bold** new *feature* involving `code`", "text")
+node = TextNode("Text with ![two](https://example.com) ![images](https://example.com) and also a [couple](https://example.com) [links](https://example.com)", "text")
 
-nodes = node.split('**')
-
-splits = []
-for node in nodes:
-    splits.extend(node.split('*'))
-
-nodes = []
-for split in splits:
-    nodes.extend(split.split('`'))
-
-for node in nodes:
-    print(node)
+print(node.extract_images())
+print(node.extract_links())
