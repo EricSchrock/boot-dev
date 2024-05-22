@@ -123,7 +123,7 @@ class TestTextNode(unittest.TestCase):
             TextNode("image", "image", "https://example.com"),
         ])
 
-    def test_split_mulitple_images(self):
+    def test_split_multiple_images(self):
         self.assertEqual(TextNode("Hi there ![hello](https://hello.com) and ![example](https://example.com)", "text").split(), [
             TextNode("Hi there ", "text"),
             TextNode("hello", "image", "https://hello.com"),
@@ -131,13 +131,48 @@ class TestTextNode(unittest.TestCase):
             TextNode("example", "image", "https://example.com"),
         ])
 
-    def test_split_multiple_types(self):
-        self.assertEqual(TextNode("Test **bold** advances in `code` and such", "text").split(), [
+    def test_split_link_in_middle(self):
+        self.assertEqual(TextNode("Text with a [link](https://example.com) and such", "text").split(), [
+            TextNode("Text with a ", "text"),
+            TextNode("link", "link", "https://example.com"),
+            TextNode(" and such", "text"),
+        ])
+
+    def test_split_link_at_start(self):
+        self.assertEqual(TextNode("[link](https://example.com) and such", "text").split(), [
+            TextNode("link", "link", "https://example.com"),
+            TextNode(" and such", "text"),
+        ])
+
+    def test_split_link_at_end(self):
+        self.assertEqual(TextNode("Text with an [link](https://example.com)", "text").split(), [
+            TextNode("Text with an ", "text"),
+            TextNode("link", "link", "https://example.com"),
+        ])
+
+    def test_split_just_link(self):
+        self.assertEqual(TextNode("[link](https://example.com)", "text").split(), [
+            TextNode("link", "link", "https://example.com"),
+        ])
+
+    def test_split_multiple_links(self):
+        self.assertEqual(TextNode("Hi there [hello](https://hello.com) and [example](https://example.com)", "text").split(), [
+            TextNode("Hi there ", "text"),
+            TextNode("hello", "link", "https://hello.com"),
+            TextNode(" and ", "text"),
+            TextNode("example", "link", "https://example.com"),
+        ])
+
+    def test_split_all_types(self):
+        self.assertEqual(TextNode("Test **bold** advances in `code` and such with ![images](url) and [links](website)", "text").split(), [
             TextNode("Test ", "text"),
             TextNode("bold", "bold"),
             TextNode(" advances in ", "text"),
             TextNode("code", "code"),
-            TextNode(" and such", "text"),
+            TextNode(" and such with ", "text"),
+            TextNode("images", "image", "url"),
+            TextNode(" and ", "text"),
+            TextNode("links", "link", "website"),
         ])
 
     def test_extract_images(self):

@@ -88,10 +88,34 @@ class TextNode:
                 new_nodes.append(TextNode(text, "text"))
         nodes = new_nodes
 
+        new_nodes = []
+        for node in nodes:
+            if node.text_type != "text":
+                new_nodes.append(node)
+                continue
+
+            links = node.extract_links()
+            if len(links) == 0:
+                new_nodes.append(node)
+                continue
+
+            text = node.text
+            for link in links:
+                splits = text.split(f"[{link[0]}]({link[1]})", maxsplit=1)
+                if splits[0]:
+                    new_nodes.append(TextNode(splits[0], "text"))
+                new_nodes.append(TextNode(link[0], "link", link[1]))
+                text = splits[1]
+
+            if text:
+                new_nodes.append(TextNode(text, "text"))
+        nodes = new_nodes
+
         return nodes
 
     def extract_images(self):
         return re.findall(r"!\[(.*?)\]\((.*?)\)", self.text)
 
     def extract_links(self):
-        return re.findall(r"[^!]\[(.*?)\]\((.*?)\)", self.text)
+        matches = re.findall(r"(^|[^!])\[(.*?)\]\((.*?)\)", self.text)
+        return [ (b, c) for (a, b, c) in matches ]
