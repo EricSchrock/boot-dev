@@ -68,10 +68,68 @@ class TestTextNode(unittest.TestCase):
         node = TextNode("Test", "text")
         self.assertEqual([node], node.split())
 
-    def test_split(self):
-        self.assertEqual(TextNode("Test **test**", "text").split(), [TextNode("Test ", "text"), TextNode("test", "bold")])
-        self.assertEqual(TextNode("*Test* test", "text").split(), [TextNode("Test", "italic"), TextNode(" test", "text")])
-        self.assertEqual(TextNode("`Test test`", "text").split(), [TextNode("Test test", "code")])
+    def test_split_bold_in_middle(self):
+        self.assertEqual(TextNode("Test **test** test", "text").split(), [
+            TextNode("Test ", "text"),
+            TextNode("test", "bold"),
+            TextNode(" test", "text"),
+        ])
+
+    def test_split_italic_at_start(self):
+        self.assertEqual(TextNode("*Test* test", "text").split(), [
+            TextNode("Test", "italic"),
+            TextNode(" test", "text"),
+        ])
+
+    def test_split_all_code(self):
+        self.assertEqual(TextNode("`Test test`", "text").split(), [
+            TextNode("Test test", "code"),
+        ])
+
+    def test_split_code_at_end(self):
+        self.assertEqual(TextNode("Test `test`", "text").split(), [
+            TextNode("Test ", "text"),
+            TextNode("test", "code"),
+        ])
+
+    def test_split_mulitple_code_blocks(self):
+        self.assertEqual(TextNode("Test `test``test`", "text").split(), [
+            TextNode("Test ", "text"),
+            TextNode("test", "code"),
+            TextNode("test", "code"),
+        ])
+
+    def test_split_image_in_middle(self):
+        self.assertEqual(TextNode("Text with an ![image](https://example.com) and such", "text").split(), [
+            TextNode("Text with an ", "text"),
+            TextNode("image", "image", "https://example.com"),
+            TextNode(" and such", "text"),
+        ])
+
+    def test_split_image_at_start(self):
+        self.assertEqual(TextNode("![image](https://example.com) and such", "text").split(), [
+            TextNode("image", "image", "https://example.com"),
+            TextNode(" and such", "text"),
+        ])
+
+    def test_split_image_at_end(self):
+        self.assertEqual(TextNode("Text with an ![image](https://example.com)", "text").split(), [
+            TextNode("Text with an ", "text"),
+            TextNode("image", "image", "https://example.com"),
+        ])
+
+    def test_split_just_image(self):
+        self.assertEqual(TextNode("![image](https://example.com)", "text").split(), [
+            TextNode("image", "image", "https://example.com"),
+        ])
+
+    def test_split_mulitple_images(self):
+        self.assertEqual(TextNode("Hi there ![hello](https://hello.com) and ![example](https://example.com)", "text").split(), [
+            TextNode("Hi there ", "text"),
+            TextNode("hello", "image", "https://hello.com"),
+            TextNode(" and ", "text"),
+            TextNode("example", "image", "https://example.com"),
+        ])
 
     def test_split_multiple_types(self):
         self.assertEqual(TextNode("Test **bold** advances in `code` and such", "text").split(), [

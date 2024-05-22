@@ -65,6 +65,29 @@ class TextNode:
                     new_nodes.append(TextNode(text, types[index]))
             nodes = new_nodes
 
+        new_nodes = []
+        for node in nodes:
+            if node.text_type != "text":
+                new_nodes.append(node)
+                continue
+
+            images = node.extract_images()
+            if len(images) == 0:
+                new_nodes.append(node)
+                continue
+
+            text = node.text
+            for image in images:
+                splits = text.split(f"![{image[0]}]({image[1]})", maxsplit=1)
+                if splits[0]:
+                    new_nodes.append(TextNode(splits[0], "text"))
+                new_nodes.append(TextNode(image[0], "image", image[1]))
+                text = splits[1]
+
+            if text:
+                new_nodes.append(TextNode(text, "text"))
+        nodes = new_nodes
+
         return nodes
 
     def extract_images(self):
