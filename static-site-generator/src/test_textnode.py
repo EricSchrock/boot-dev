@@ -55,43 +55,32 @@ class TestTextNode(unittest.TestCase):
 
     def test_split_non_text(self):
         node = TextNode("Test", "code")
-        self.assertEqual([node], node.split('*'))
-
-    def test_split_invalid_delimiter(self):
-        with self.assertRaises(ValueError):
-            TextNode("Test", "text").split('_')
+        self.assertEqual([node], node.split())
 
     def test_split_unmatched_delimiter(self):
         with self.assertRaises(ValueError):
-            TextNode("Test **test test", "text").split('**')
+            TextNode("Test **test test", "text").split()
 
         with self.assertRaises(ValueError):
-            TextNode("Test **test* test", "text").split('**')
+            TextNode("Test **test* test", "text").split()
 
     def test_split_nothing_to_split(self):
         node = TextNode("Test", "text")
-        self.assertEqual([node], node.split('*'))
+        self.assertEqual([node], node.split())
 
     def test_split(self):
-        self.assertEqual(TextNode("Test **test**", "text").split('**'), [TextNode("Test ", "text"), TextNode("test", "bold")])
-        self.assertEqual(TextNode("*Test* test", "text").split('*'), [TextNode("Test", "italic"), TextNode(" test", "text")])
-        self.assertEqual(TextNode("`Test test`", "text").split('`'), [TextNode("Test test", "code")])
+        self.assertEqual(TextNode("Test **test**", "text").split(), [TextNode("Test ", "text"), TextNode("test", "bold")])
+        self.assertEqual(TextNode("*Test* test", "text").split(), [TextNode("Test", "italic"), TextNode(" test", "text")])
+        self.assertEqual(TextNode("`Test test`", "text").split(), [TextNode("Test test", "code")])
 
-    def test_split_order(self):
-        node = TextNode("Test **bold** advances in `code` and such", "text")
-        bold_first = node.split('**')
-        code_first = node.split('`')
-        self.assertNotEqual(bold_first, code_first)
-
-        code_second = []
-        for node in bold_first:
-            code_second.extend(node.split('`'))
-
-        bold_second = []
-        for node in code_first:
-            bold_second.extend(node.split('**'))
-
-        self.assertEqual(code_second, bold_second)
+    def test_split_multiple_types(self):
+        self.assertEqual(TextNode("Test **bold** advances in `code` and such", "text").split(), [
+            TextNode("Test ", "text"),
+            TextNode("bold", "bold"),
+            TextNode(" advances in ", "text"),
+            TextNode("code", "code"),
+            TextNode(" and such", "text"),
+        ])
 
     def test_extract_images(self):
         node = TextNode("Text with ![two](https://example.com) ![images](https://example.com) and also a [couple](https://example.com) [links](https://example.com)", "text")

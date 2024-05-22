@@ -38,28 +38,32 @@ class TextNode:
             return LeafNode(tag="img", value="", props={"src": self.url, "alt": self.text})
         raise ValueError("unsupported node type")
 
-    def split(self, delimiter: str) -> List[Self]:
+    def split(self) -> List[Self]:
         if self.text_type != "text":
             return [self]
 
+        nodes = [self]
         types = {'**': 'bold', '*': "italic", '`': "code"}
+        for k, v in types.items():
+            new_nodes = []
+            for node in nodes:
+                if node.text_type != "text":
+                    new_nodes.append(node)
+                    continue
 
-        if delimiter not in types.keys():
-            raise ValueError(f"delimiter={delimiter} is invalid")
+                splits = node.text.split(k)
+                if len(splits) % 2 == 0:
+                    raise ValueError(f"unpaired {k} delimiter (syntax error)")
 
-        splits = self.text.split(delimiter)
-        if len(splits) % 2 == 0:
-            raise ValueError(f"unpaired {delimiter} delimiter (syntax error)")
+                types = ["text", v]
+                while len(splits) > 0:
+                    index = 1 if len(splits) % 2 == 0 else 0
+                    text = splits.pop(0)
+                    if not text:
+                        continue
 
-        nodes = []
-        types = ["text", types[delimiter]]
-        while len(splits) > 0:
-            index = 1 if len(splits) % 2 == 0 else 0
-            text = splits.pop(0)
-            if not text:
-                continue
-
-            nodes.append(TextNode(text, types[index]))
+                    new_nodes.append(TextNode(text, types[index]))
+            nodes = new_nodes
 
         return nodes
 
