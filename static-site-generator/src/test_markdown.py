@@ -1,6 +1,6 @@
 import unittest
 
-from markdown import markdown_to_blocks
+from markdown import markdown_to_blocks, block_to_block_type
 
 three_blocks_with_heading = """
 # This is a heading
@@ -53,3 +53,58 @@ class TestMarkdown(unittest.TestCase):
             "Block 1\nContinued",
             "Block 2",
         ])
+
+    def test_block_to_block_type_paragraph(self):
+        self.assertEqual(block_to_block_type("Test"), "paragraph")
+        self.assertEqual(block_to_block_type("Test\nTest"), "paragraph")
+
+    def test_block_to_block_type_heading(self):
+        self.assertEqual(block_to_block_type("# Test"), "heading")
+        self.assertEqual(block_to_block_type("###### Test"), "heading")
+
+        self.assertEqual(block_to_block_type("#Test"), "paragraph")
+        self.assertEqual(block_to_block_type("# "), "paragraph")
+        self.assertEqual(block_to_block_type("####### Test"), "paragraph")
+        self.assertEqual(block_to_block_type("# Test\nTest"), "paragraph")
+
+    def test_block_to_block_type_code(self):
+        self.assertEqual(block_to_block_type("```print('test')```"), "code")
+        self.assertEqual(block_to_block_type("```\ndef main():\n\tprint('hello world')\n```"), "code")
+
+        self.assertEqual(block_to_block_type("```print('test')``"), "paragraph")
+        self.assertEqual(block_to_block_type("``print('test')```"), "paragraph")
+        self.assertEqual(block_to_block_type("Test ```print('test')```"), "paragraph")
+        self.assertEqual(block_to_block_type("```print('test')``` Test"), "paragraph")
+
+    def test_block_to_block_type_quote(self):
+        self.assertEqual(block_to_block_type(">Test"), "quote")
+        self.assertEqual(block_to_block_type(">Test\n>Test"), "quote")
+
+        self.assertEqual(block_to_block_type(" >Test"), "paragraph")
+        self.assertEqual(block_to_block_type(">Test\n >Test"), "paragraph")
+
+    def test_block_to_block_type_unordered_list(self):
+        self.assertEqual(block_to_block_type("*Test"), "unordered_list")
+        self.assertEqual(block_to_block_type("*Test\n*Test"), "unordered_list")
+
+        self.assertEqual(block_to_block_type("-Test"), "unordered_list")
+        self.assertEqual(block_to_block_type("-Test\n-Test"), "unordered_list")
+
+        self.assertEqual(block_to_block_type("-Test\n*Test"), "unordered_list")
+        self.assertEqual(block_to_block_type("*Test\n-Test"), "unordered_list")
+
+        self.assertEqual(block_to_block_type(" -Test"), "paragraph")
+        self.assertEqual(block_to_block_type("-Test\n -Test"), "paragraph")
+
+        self.assertEqual(block_to_block_type(" *Test"), "paragraph")
+        self.assertEqual(block_to_block_type("*Test\n *Test"), "paragraph")
+
+    def test_block_to_block_type_ordered_list(self):
+        self.assertEqual(block_to_block_type("1.Test"), "ordered_list")
+        self.assertEqual(block_to_block_type("1.Test\n2.Test"), "ordered_list")
+
+        self.assertEqual(block_to_block_type("2.Test"), "paragraph")
+        self.assertEqual(block_to_block_type("1.Test\n1.Test"), "paragraph")
+
+        self.assertEqual(block_to_block_type(" 1.Test"), "paragraph")
+        self.assertEqual(block_to_block_type("1.Test\n 2.Test"), "paragraph")
