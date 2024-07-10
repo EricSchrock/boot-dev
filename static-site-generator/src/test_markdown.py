@@ -181,3 +181,21 @@ class TestMarkdown(unittest.TestCase):
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), node)
+
+    def test_markdown_to_html_node_ordered_list(self):
+        markdown = "1. *First*\n2. Second\n3. Third and **final**"
+        node = ParentNode("div", [
+            ParentNode("ol", [
+                ParentNode("li", [
+                    LeafNode("i", "First"),
+                ]),
+                ParentNode("li", [
+                    LeafNode(None, "Second")
+                ]),
+                ParentNode("li", [
+                    LeafNode(None, "Third and "),
+                    LeafNode("b", "final")
+                ])
+            ])
+        ])
+        self.assertEqual(markdown_to_html_node(markdown), node)
