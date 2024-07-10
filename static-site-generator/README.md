@@ -10,6 +10,8 @@
 make
 ```
 
+Navigate to `http://localhost:8888` in your browser.
+
 ## Run Tests
 
 ```sh
