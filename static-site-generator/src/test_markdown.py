@@ -78,11 +78,11 @@ class TestMarkdown(unittest.TestCase):
         self.assertEqual(block_to_block_type("```print('test')``` Test"), "paragraph")
 
     def test_block_to_block_type_quote(self):
-        self.assertEqual(block_to_block_type(">Test"), "quote")
-        self.assertEqual(block_to_block_type(">Test\n>Test"), "quote")
+        self.assertEqual(block_to_block_type("> Test"), "quote")
+        self.assertEqual(block_to_block_type("> Test\n> Test"), "quote")
 
         self.assertEqual(block_to_block_type(" >Test"), "paragraph")
-        self.assertEqual(block_to_block_type(">Test\n >Test"), "paragraph")
+        self.assertEqual(block_to_block_type("> Test\n>Test"), "paragraph")
 
     def test_block_to_block_type_unordered_list(self):
         self.assertEqual(block_to_block_type("* Test"), "unordered_list")
@@ -155,7 +155,7 @@ class TestMarkdown(unittest.TestCase):
         self.assertEqual(markdown_to_html_node(block1 + "\n\n" + block2), node)
 
     def test_markdown_to_html_node_quote(self):
-        markdown = ">Hello world!\n>`print('hello world')`"
+        markdown = "> Hello world!\n> `print('hello world')`"
         node = ParentNode("div", [
             ParentNode("blockquote", [
                 LeafNode(None, "Hello world!\n"),

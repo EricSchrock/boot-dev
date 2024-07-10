@@ -16,7 +16,7 @@ def block_to_block_type(block: str) -> str:
 
     lines = block.split('\n')
 
-    if all([ line[0] == '>' for line in lines ]):
+    if all([ line.startswith("> ") for line in lines ]):
         return "quote"
 
     if all([ line.startswith("* ") or line.startswith("- ") for line in lines ]):
@@ -52,7 +52,7 @@ def paragraph_to_html_node(block: str) -> ParentNode:
     return ParentNode("p", nodes)
 
 def quote_to_html_node(block: str) -> ParentNode:
-    block = block.replace("\n>", "\n")[1:]
+    block = block.replace("\n> ", "\n")[2:]
     nodes = [ node.to_html_node() for node in TextNode(block, "text").split() ]
     return ParentNode("blockquote", nodes)
 
