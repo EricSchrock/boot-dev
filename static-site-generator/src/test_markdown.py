@@ -1,7 +1,7 @@
 import unittest
 
 from htmlnode import LeafNode, ParentNode
-from markdown import markdown_to_blocks, block_to_block_type, markdown_to_html_node
+from markdown import markdown_to_blocks, block_to_block_type, markdown_to_html_node, extract_title
 
 three_blocks_with_heading = """
 # This is a heading
@@ -221,3 +221,12 @@ class TestMarkdown(unittest.TestCase):
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), node)
+
+    def test_extract_title(self):
+        self.assertEqual(extract_title("# Title \n "), "Title")
+        self.assertEqual(extract_title("# Multiline\nTitle"), "Multiline\nTitle")
+        self.assertEqual(extract_title("# Title\n\n## Subtitle"), "Title")
+        self.assertEqual(extract_title("# Title\n\nText"), "Title")
+
+        with self.assertRaises(ValueError):
+            extract_title("Title")

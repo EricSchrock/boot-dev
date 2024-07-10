@@ -74,3 +74,10 @@ def code_to_html_node(block: str) -> ParentNode:
 def heading_to_html_node(block: str) -> ParentNode:
     hashes, text = block.split(" ", 1)
     return ParentNode(f"h{len(hashes)}", [ node.to_html_node() for node in TextNode(text, "text").split() ])
+
+def extract_title(markdown: str) -> str:
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        if block.startswith("# "):
+            return block[2:].strip()
+    raise ValueError("must have header")
