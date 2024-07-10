@@ -1,6 +1,7 @@
 import unittest
 
-from markdown import markdown_to_blocks, block_to_block_type
+from htmlnode import LeafNode, ParentNode
+from markdown import markdown_to_blocks, block_to_block_type, markdown_to_html_node
 
 three_blocks_with_heading = """
 # This is a heading
@@ -84,27 +85,71 @@ class TestMarkdown(unittest.TestCase):
         self.assertEqual(block_to_block_type(">Test\n >Test"), "paragraph")
 
     def test_block_to_block_type_unordered_list(self):
-        self.assertEqual(block_to_block_type("*Test"), "unordered_list")
-        self.assertEqual(block_to_block_type("*Test\n*Test"), "unordered_list")
+        self.assertEqual(block_to_block_type("* Test"), "unordered_list")
+        self.assertEqual(block_to_block_type("* Test\n* Test"), "unordered_list")
 
-        self.assertEqual(block_to_block_type("-Test"), "unordered_list")
-        self.assertEqual(block_to_block_type("-Test\n-Test"), "unordered_list")
+        self.assertEqual(block_to_block_type("- Test"), "unordered_list")
+        self.assertEqual(block_to_block_type("- Test\n- Test"), "unordered_list")
 
-        self.assertEqual(block_to_block_type("-Test\n*Test"), "unordered_list")
-        self.assertEqual(block_to_block_type("*Test\n-Test"), "unordered_list")
+        self.assertEqual(block_to_block_type("- Test\n* Test"), "unordered_list")
+        self.assertEqual(block_to_block_type("* Test\n- Test"), "unordered_list")
 
         self.assertEqual(block_to_block_type(" -Test"), "paragraph")
-        self.assertEqual(block_to_block_type("-Test\n -Test"), "paragraph")
+        self.assertEqual(block_to_block_type("- Test\n -Test"), "paragraph")
 
         self.assertEqual(block_to_block_type(" *Test"), "paragraph")
-        self.assertEqual(block_to_block_type("*Test\n *Test"), "paragraph")
+        self.assertEqual(block_to_block_type("* Test\n *Test"), "paragraph")
+
+        self.assertEqual(block_to_block_type("-Test"), "paragraph")
+        self.assertEqual(block_to_block_type("- Test\n-Test"), "paragraph")
+
+        self.assertEqual(block_to_block_type("*Test"), "paragraph")
+        self.assertEqual(block_to_block_type("* Test\n*Test"), "paragraph")
 
     def test_block_to_block_type_ordered_list(self):
-        self.assertEqual(block_to_block_type("1.Test"), "ordered_list")
-        self.assertEqual(block_to_block_type("1.Test\n2.Test"), "ordered_list")
+        self.assertEqual(block_to_block_type("1. Test"), "ordered_list")
+        self.assertEqual(block_to_block_type("1. Test\n2. Test"), "ordered_list")
 
-        self.assertEqual(block_to_block_type("2.Test"), "paragraph")
-        self.assertEqual(block_to_block_type("1.Test\n1.Test"), "paragraph")
+        self.assertEqual(block_to_block_type("2. Test"), "paragraph")
+        self.assertEqual(block_to_block_type("1. Test\n1. Test"), "paragraph")
 
         self.assertEqual(block_to_block_type(" 1.Test"), "paragraph")
-        self.assertEqual(block_to_block_type("1.Test\n 2.Test"), "paragraph")
+        self.assertEqual(block_to_block_type("1. Test\n 2.Test"), "paragraph")
+
+        self.assertEqual(block_to_block_type("1.Test"), "paragraph")
+        self.assertEqual(block_to_block_type("1.Test\n2.Test"), "paragraph")
+
+    def test_markdown_to_html_node_paragraph(self):
+        node = ParentNode("div", [
+            ParentNode("p", [
+                LeafNode(None, "Hello world")
+            ])
+        ])
+        self.assertEqual(markdown_to_html_node("Hello world"), node)
+
+    def test_markdown_to_html_node_multiline_paragraph(self):
+        node = ParentNode("div", [
+            ParentNode("p", [
+                LeafNode(None, "Hello\nworld")
+            ])
+        ])
+        self.assertEqual(markdown_to_html_node("Hello\nworld"), node)
+
+    def test_markdown_to_html_node_multiple_paragraphs(self):
+        block1 = "*Everyone* starts with **Hello World!**. In [Python](https://www.python.org/), this looks like `print('hello world')`"
+        block2 = '![python logo](https://www.python.org/static/img/python-logo@2x.png)'
+        node = ParentNode("div", [
+            ParentNode("p", [
+                LeafNode("i", "Everyone"),
+                LeafNode(None, " starts with "),
+                LeafNode("b", "Hello World!"),
+                LeafNode(None, ". In "),
+                LeafNode("a", "Python", props={"href": "https://www.python.org/"}),
+                LeafNode(None, ", this looks like "),
+                LeafNode("code", "print('hello world')")
+            ]),
+            ParentNode("p", [
+                LeafNode("img", "", props={"src": "https://www.python.org/static/img/python-logo@2x.png", "alt": "python logo"})
+            ])
+        ])
+        self.assertEqual(markdown_to_html_node(block1 + "\n\n" + block2), node)
