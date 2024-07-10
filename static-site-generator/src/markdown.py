@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-from htmlnode import LeafNode, ParentNode
+from htmlnode import ParentNode
 from textnode import TextNode
 
 def markdown_to_blocks(markdown: str) -> List[str]:
@@ -33,13 +33,17 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
     children = []
     for block in blocks:
         if block_to_block_type(block) == "paragraph":
-            tag = "p"
-            grandchildren = paragraph_to_html_node(block)
-
-        children.append(ParentNode(tag, grandchildren))
+            children.append(paragraph_to_html_node(block))
+        elif block_to_block_type(block) == "quote":
+            children.append(quote_to_html_node(block))
 
     return ParentNode("div", children)
 
-def paragraph_to_html_node(block: str) -> List[LeafNode]:
-    nodes = TextNode(block, "text").split()
-    return [ node.to_html_node() for node in nodes ]
+def paragraph_to_html_node(block: str) -> ParentNode:
+    nodes = [ node.to_html_node() for node in TextNode(block, "text").split() ]
+    return ParentNode("p", nodes)
+
+def quote_to_html_node(block: str) -> ParentNode:
+    block = block.replace("\n>", "\n")[1:]
+    nodes = [ node.to_html_node() for node in TextNode(block, "text").split() ]
+    return ParentNode("blockquote", nodes)

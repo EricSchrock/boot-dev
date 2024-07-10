@@ -153,3 +153,13 @@ class TestMarkdown(unittest.TestCase):
             ])
         ])
         self.assertEqual(markdown_to_html_node(block1 + "\n\n" + block2), node)
+
+    def test_markdown_to_html_node_quote(self):
+        markdown = ">Hello world!\n>`print('hello world')`"
+        node = ParentNode("div", [
+            ParentNode("blockquote", [
+                LeafNode(None, "Hello world!\n"),
+                LeafNode("code", "print('hello world')")
+            ])
+        ])
+        self.assertEqual(markdown_to_html_node(markdown), node)
