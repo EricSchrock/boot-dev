@@ -208,3 +208,16 @@ class TestMarkdown(unittest.TestCase):
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), node)
+
+    def test_markdown_to_html_node_heading(self):
+        markdown = "# Title\n\n## **Exciting** Introduction"
+        node = ParentNode("div", [
+            ParentNode("h1", [
+                LeafNode(None, "Title")
+            ]),
+            ParentNode("h2", [
+                LeafNode("b", "Exciting"),
+                LeafNode(None, " Introduction")
+            ])
+        ])
+        self.assertEqual(markdown_to_html_node(markdown), node)

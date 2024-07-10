@@ -42,6 +42,8 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
             children.append(ordered_list_to_html_node(block))
         elif block_to_block_type(block) == "code":
             children.append(code_to_html_node(block))
+        elif block_to_block_type(block) == "heading":
+            children.append(heading_to_html_node(block))
 
     return ParentNode("div", children)
 
@@ -57,14 +59,18 @@ def quote_to_html_node(block: str) -> ParentNode:
 def unordered_list_to_html_node(block: str) -> ParentNode:
     nodes = []
     for line in block.split("\n"):
-        nodes.append(ParentNode("li", [ node.to_html_node() for node in TextNode(line[2:], "text").split()]))
+        nodes.append(ParentNode("li", [ node.to_html_node() for node in TextNode(line[2:], "text").split() ]))
     return ParentNode("ul", nodes)
 
 def ordered_list_to_html_node(block: str) -> ParentNode:
     nodes = []
     for line in block.split("\n"):
-        nodes.append(ParentNode("li", [ node.to_html_node() for node in TextNode(line.split(". ")[1], "text").split()]))
+        nodes.append(ParentNode("li", [ node.to_html_node() for node in TextNode(line.split(". ")[1], "text").split() ]))
     return ParentNode("ol", nodes)
 
 def code_to_html_node(block: str) -> ParentNode:
     return ParentNode("pre", [TextNode(block.replace("```\n", "```").replace("\n```", "```")[3:-3], "code").to_html_node()])
+
+def heading_to_html_node(block: str) -> ParentNode:
+    hashes, text = block.split(" ", 1)
+    return ParentNode(f"h{len(hashes)}", [ node.to_html_node() for node in TextNode(text, "text").split() ])
