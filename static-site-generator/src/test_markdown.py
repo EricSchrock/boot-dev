@@ -199,3 +199,12 @@ class TestMarkdown(unittest.TestCase):
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), node)
+
+    def test_markdown_to_html_node_code(self):
+        markdown = "```\nif __name__ == '__main__':\n\tprint('hello world')\n```"
+        node = ParentNode("div", [
+            ParentNode("pre", [
+                LeafNode("code", "if __name__ == '__main__':\n\tprint('hello world')")
+            ])
+        ])
+        self.assertEqual(markdown_to_html_node(markdown), node)

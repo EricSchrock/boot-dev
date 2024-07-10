@@ -40,6 +40,8 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
             children.append(unordered_list_to_html_node(block))
         elif block_to_block_type(block) == "ordered_list":
             children.append(ordered_list_to_html_node(block))
+        elif block_to_block_type(block) == "code":
+            children.append(code_to_html_node(block))
 
     return ParentNode("div", children)
 
@@ -63,3 +65,6 @@ def ordered_list_to_html_node(block: str) -> ParentNode:
     for line in block.split("\n"):
         nodes.append(ParentNode("li", [ node.to_html_node() for node in TextNode(line.split(". ")[1], "text").split()]))
     return ParentNode("ol", nodes)
+
+def code_to_html_node(block: str) -> ParentNode:
+    return ParentNode("pre", [TextNode(block.replace("```\n", "```").replace("\n```", "```")[3:-3], "code").to_html_node()])
