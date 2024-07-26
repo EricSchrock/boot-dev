@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type apiConfig struct {
@@ -32,6 +33,19 @@ func main() {
 	err := server.ListenAndServe()
 
 	log.Fatal(err)
+}
+
+func middlewareCors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
@@ -87,23 +101,24 @@ func validateChirpHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type response struct {
-		Valid bool `json:"valid"`
+		Body string `json:"cleaned_body"`
 	}
 
-	respondWithJSON(w, http.StatusOK, response{true})
+	respondWithJSON(w, http.StatusOK, response{cleanChirp(req.Body)})
 }
 
-func middlewareCors(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
+func cleanChirp(chirp string) string {
+	words := strings.Split(chirp, " ")
+	for i, word := range words {
+		for _, profanity := range []string{"kerfuffle", "sharbert", "fornax"} {
+			if strings.ToLower(word) == profanity {
+				words[i] = "****"
+				break
+			}
 		}
-		next.ServeHTTP(w, r)
-	})
+	}
+
+	return strings.Join(words, " ")
 }
 
 func respondWithError(w http.ResponseWriter, status int, message string) {
