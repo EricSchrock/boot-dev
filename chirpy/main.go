@@ -81,29 +81,16 @@ func validateChirpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type response struct {
-		Valid bool   `json:"valid"`
-		Error string `json:"error"`
-	}
-
-	status := http.StatusOK
-	resp := response{}
-	resp.Valid = (len(req.Body) <= 140)
-	if !resp.Valid {
-		status = http.StatusBadRequest
-		resp.Error = "Chirp is too long"
-	}
-
-	data, err := json.Marshal(resp)
-	if err != nil {
-		log.Print(err)
-		w.WriteHeader(http.StatusInternalServerError)
+	if len(req.Body) > 140 {
+		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	w.Write(data)
+	type response struct {
+		Valid bool `json:"valid"`
+	}
+
+	respondWithJSON(w, http.StatusOK, response{true})
 }
 
 func middlewareCors(next http.Handler) http.Handler {
@@ -117,4 +104,35 @@ func middlewareCors(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func respondWithError(w http.ResponseWriter, status int, message string) {
+	type response struct {
+		Error string `json:"error"`
+	}
+
+	resp := response{message}
+	data, err := json.Marshal(resp)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write(data)
+}
+
+func respondWithJSON(w http.ResponseWriter, status int, payload interface{}) {
+	data, err := json.Marshal(payload)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write(data)
 }
