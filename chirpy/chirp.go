@@ -14,10 +14,8 @@ func validateChirpHandler(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	req := request{}
-	err := decoder.Decode(&req)
-	if err != nil {
-		log.Print(err)
-		w.WriteHeader(http.StatusInternalServerError)
+	if err := decoder.Decode(&req); err != nil {
+		respondWithServerError(w, err)
 		return
 	}
 
@@ -30,10 +28,10 @@ func validateChirpHandler(w http.ResponseWriter, r *http.Request) {
 		Body string `json:"cleaned_body"`
 	}
 
-	respondWithJSON(w, http.StatusOK, response{cleanChirp(req.Body)})
+	respondWithJSON(w, http.StatusOK, response{filterProfanity(req.Body)})
 }
 
-func cleanChirp(chirp string) string {
+func filterProfanity(chirp string) string {
 	words := strings.Split(chirp, " ")
 	for i, word := range words {
 		for _, profanity := range []string{"kerfuffle", "sharbert", "fornax"} {
@@ -47,6 +45,11 @@ func cleanChirp(chirp string) string {
 	return strings.Join(words, " ")
 }
 
+func respondWithServerError(w http.ResponseWriter, err error) {
+	log.Print(err)
+	w.WriteHeader(http.StatusInternalServerError)
+}
+
 func respondWithError(w http.ResponseWriter, status int, message string) {
 	type response struct {
 		Error string `json:"error"`
@@ -55,8 +58,7 @@ func respondWithError(w http.ResponseWriter, status int, message string) {
 	resp := response{message}
 	data, err := json.Marshal(resp)
 	if err != nil {
-		log.Print(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithServerError(w, err)
 		return
 	}
 
@@ -68,8 +70,7 @@ func respondWithError(w http.ResponseWriter, status int, message string) {
 func respondWithJSON(w http.ResponseWriter, status int, payload interface{}) {
 	data, err := json.Marshal(payload)
 	if err != nil {
-		log.Print(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		respondWithServerError(w, err)
 		return
 	}
 
