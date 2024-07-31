@@ -11,5 +11,7 @@ run:
 	./server
 
 .PHONY: test
-test:
+test: build
+	./server &
 	go test -v
+	pkill server

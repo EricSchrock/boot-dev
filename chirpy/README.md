@@ -12,8 +12,6 @@ Navigate to `http://localhost:8080` in your browser.
 
 ## Run Tests
 
-The server must be running.
-
 ```sh
 make test
 ```
