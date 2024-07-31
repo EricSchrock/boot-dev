@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+var Port string = "8080"
+
 func main() {
 	log.Println("Starting server...")
 
@@ -15,7 +17,7 @@ func main() {
 	mux.Handle("/app/*", http.StripPrefix("/app/", apiCfg.middlewareMetricsInc(http.FileServer(http.Dir(".")))))
 
 	// Back-end APIs (health)
-	mux.HandleFunc("GET /api/healthz", healthHandler)
+	mux.HandleFunc("GET "+HealthAPI, healthHandler)
 
 	// Back-end APIs (metrics)
 	mux.HandleFunc("GET /admin/metrics", apiCfg.metricsHandler)
@@ -25,7 +27,7 @@ func main() {
 	mux.HandleFunc("POST /api/validate_chirp", validateChirpHandler)
 
 	corsMux := middlewareCors(mux)
-	server := &http.Server{Addr: ":8080", Handler: corsMux}
+	server := &http.Server{Addr: ":" + Port, Handler: corsMux}
 	err := server.ListenAndServe()
 	log.Fatal(err)
 }

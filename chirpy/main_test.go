@@ -6,8 +6,10 @@ import (
 	"testing"
 )
 
+var Host string = "http://localhost"
+
 func TestGetHealth(t *testing.T) {
-	r, err := http.Get("http://localhost:8080/api/healthz")
+	r, err := http.Get(Host + ":" + Port + HealthAPI)
 	if err != nil {
 		t.Fatal(err.Error())
 	} else if r.StatusCode != http.StatusOK {
