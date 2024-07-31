@@ -1,8 +1,24 @@
 # Chirpy
 
-Chirpy is a perfunctory twitter clone, written in Go.
+Chirpy is a simple Twitter clone, written in Go.
 
-## Ideas
+## Run Server
+
+```sh
+make
+```
+
+Navigate to `http://localhost:8080` in your browser.
+
+## Run Tests
+
+The server must be running.
+
+```sh
+make test
+```
+
+## Future Improvements
 
 1. Port to separate repo
 2. HTMX front-end ([tutorial](https://www.youtube.com/watch?v=x7v6SNIgJpE))
