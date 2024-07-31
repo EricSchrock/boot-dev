@@ -9,6 +9,40 @@ import (
 
 var Host string = "http://localhost"
 
+func TestWelcome(t *testing.T) {
+	r, err := http.Get(Host + ":" + Port + Home)
+	if err != nil {
+		t.Fatal(err.Error())
+	} else if r.StatusCode != http.StatusOK {
+		t.Errorf("Unexpected status: %v", r.StatusCode)
+	}
+
+	defer r.Body.Close()
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		t.Fatal(err.Error())
+	} else if !strings.Contains(string(b), "Welcome to Chirpy") {
+		t.Errorf("Unexpected body: %v", string(b))
+	}
+}
+
+func TestLogo(t *testing.T) {
+	r, err := http.Get(Host + ":" + Port + Assets)
+	if err != nil {
+		t.Fatal(err.Error())
+	} else if r.StatusCode != http.StatusOK {
+		t.Errorf("Unexpected status: %v", r.StatusCode)
+	}
+
+	defer r.Body.Close()
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		t.Fatal(err.Error())
+	} else if !strings.Contains(string(b), `<a href="logo.png">logo.png</a>`) {
+		t.Errorf("Unexpected body: %v", string(b))
+	}
+}
+
 func TestHealth(t *testing.T) {
 	r, err := http.Get(Host + ":" + Port + HealthAPI)
 	if err != nil {

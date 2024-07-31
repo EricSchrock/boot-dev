@@ -7,6 +7,7 @@ import (
 
 var Port string = "8080"
 var Home string = "/app"
+var Assets string = Home + "/assets"
 
 func main() {
 	log.Println("Starting server...")
