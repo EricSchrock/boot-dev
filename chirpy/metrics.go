@@ -5,6 +5,9 @@ import (
 	"net/http"
 )
 
+var MetricsAPI string = "/admin/metrics"
+var ResetAPI string = "/api/reset"
+
 type apiConfig struct {
 	fileserverHits int
 }
