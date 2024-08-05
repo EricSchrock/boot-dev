@@ -8,6 +8,8 @@ import (
 )
 
 var chirpAPI string = "/api/validate_chirp"
+var chirpLengthLimit int = 140
+var profanities []string = []string{"kerfuffle", "sharbert", "fornax"}
 
 func validateChirpHandler(w http.ResponseWriter, r *http.Request) {
 	type request struct {
@@ -21,7 +23,7 @@ func validateChirpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(req.Body) > 140 {
+	if len(req.Body) > chirpLengthLimit {
 		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
 		return
 	}
@@ -36,7 +38,7 @@ func validateChirpHandler(w http.ResponseWriter, r *http.Request) {
 func filterProfanity(chirp string) string {
 	words := strings.Split(chirp, " ")
 	for i, word := range words {
-		for _, profanity := range []string{"kerfuffle", "sharbert", "fornax"} {
+		for _, profanity := range profanities {
 			if strings.ToLower(word) == profanity {
 				words[i] = "****"
 				break
