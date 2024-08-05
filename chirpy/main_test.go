@@ -7,10 +7,10 @@ import (
 	"testing"
 )
 
-var Host string = "http://localhost"
+var host string = "http://localhost"
 
 func TestWelcome(t *testing.T) {
-	r, err := http.Get(Host + ":" + Port + Home)
+	r, err := http.Get(host + ":" + port + home)
 	if err != nil {
 		t.Fatal(err.Error())
 	} else if r.StatusCode != http.StatusOK {
@@ -27,7 +27,7 @@ func TestWelcome(t *testing.T) {
 }
 
 func TestLogo(t *testing.T) {
-	r, err := http.Get(Host + ":" + Port + Assets)
+	r, err := http.Get(host + ":" + port + assets)
 	if err != nil {
 		t.Fatal(err.Error())
 	} else if r.StatusCode != http.StatusOK {
@@ -44,7 +44,7 @@ func TestLogo(t *testing.T) {
 }
 
 func TestHealth(t *testing.T) {
-	r, err := http.Get(Host + ":" + Port + HealthAPI)
+	r, err := http.Get(host + ":" + port + healthAPI)
 	if err != nil {
 		t.Fatal(err.Error())
 	} else if r.StatusCode != http.StatusOK {
@@ -61,14 +61,14 @@ func TestHealth(t *testing.T) {
 }
 
 func TestMetrics(t *testing.T) {
-	r, err := http.Get(Host + ":" + Port + ResetAPI)
+	r, err := http.Get(host + ":" + port + resetAPI)
 	if err != nil {
 		t.Fatal(err.Error())
 	} else if r.StatusCode != http.StatusOK {
 		t.Errorf("Unexpected status: %v", r.StatusCode)
 	}
 
-	r, err = http.Get(Host + ":" + Port + MetricsAPI)
+	r, err = http.Get(host + ":" + port + metricsAPI)
 	if err != nil {
 		t.Fatal(err.Error())
 	} else if r.StatusCode != http.StatusOK {
@@ -83,14 +83,14 @@ func TestMetrics(t *testing.T) {
 		t.Errorf("Unexpected body: %v", string(b))
 	}
 
-	r, err = http.Get(Host + ":" + Port + Home)
+	r, err = http.Get(host + ":" + port + home)
 	if err != nil {
 		t.Fatal(err.Error())
 	} else if r.StatusCode != http.StatusOK {
 		t.Errorf("Unexpected status: %v", r.StatusCode)
 	}
 
-	r, err = http.Get(Host + ":" + Port + MetricsAPI)
+	r, err = http.Get(host + ":" + port + metricsAPI)
 	if err != nil {
 		t.Fatal(err.Error())
 	} else if r.StatusCode != http.StatusOK {

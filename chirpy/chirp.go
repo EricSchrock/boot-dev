@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var chirpAPI string = "/api/validate_chirp"
+
 func validateChirpHandler(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		Body string `json:"body"`

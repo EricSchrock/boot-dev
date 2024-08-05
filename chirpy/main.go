@@ -5,9 +5,9 @@ import (
 	"net/http"
 )
 
-var Port string = "8080"
-var Home string = "/app"
-var Assets string = Home + "/assets"
+var port string = "8080"
+var home string = "/app"
+var assets string = home + "/assets"
 
 func main() {
 	log.Println("Starting server...")
@@ -16,20 +16,20 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Front-end website
-	mux.Handle(Home+"/*", http.StripPrefix(Home+"/", apiCfg.middlewareMetricsInc(http.FileServer(http.Dir(".")))))
+	mux.Handle(home+"/*", http.StripPrefix(home+"/", apiCfg.middlewareMetricsInc(http.FileServer(http.Dir(".")))))
 
 	// Back-end APIs (health)
-	mux.HandleFunc("GET "+HealthAPI, healthHandler)
+	mux.HandleFunc("GET "+healthAPI, healthHandler)
 
 	// Back-end APIs (metrics)
-	mux.HandleFunc("GET "+MetricsAPI, apiCfg.metricsHandler)
-	mux.HandleFunc(ResetAPI, apiCfg.resetHandler)
+	mux.HandleFunc("GET "+metricsAPI, apiCfg.metricsHandler)
+	mux.HandleFunc(resetAPI, apiCfg.resetHandler)
 
 	// Back-end APIs (chirps)
-	mux.HandleFunc("POST /api/validate_chirp", validateChirpHandler)
+	mux.HandleFunc("POST "+chirpAPI, validateChirpHandler)
 
 	corsMux := middlewareCors(mux)
-	server := &http.Server{Addr: ":" + Port, Handler: corsMux}
+	server := &http.Server{Addr: ":" + port, Handler: corsMux}
 	err := server.ListenAndServe()
 	log.Fatal(err)
 }
