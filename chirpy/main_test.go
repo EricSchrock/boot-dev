@@ -10,8 +10,27 @@ import (
 
 var host string = "http://localhost"
 
-func postRequestTest(t *testing.T, api string, requestBody string, responseStatus int, responseBody string) {
-	req, err := http.NewRequest(http.MethodPost, host+":"+port+api, bytes.NewReader([]byte(requestBody)))
+func getRequestTest(t *testing.T, path string, responseStatus int, responseBody string, exactMatch bool) {
+	resp, err := http.Get(host + ":" + port + path)
+	if err != nil {
+		t.Fatal(err.Error())
+	} else if resp.StatusCode != responseStatus {
+		t.Errorf("Unexpected status: %v", resp.StatusCode)
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err.Error())
+	} else if exactMatch && (string(body) != responseBody) {
+		t.Errorf("Unexpected body: %v", string(body))
+	} else if !strings.Contains(string(body), responseBody) {
+		t.Errorf("Unexpected body: %v", string(body))
+	}
+}
+
+func postRequestTest(t *testing.T, path string, requestBody string, responseStatus int, responseBody string) {
+	req, err := http.NewRequest(http.MethodPost, host+":"+port+path, bytes.NewReader([]byte(requestBody)))
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -33,100 +52,22 @@ func postRequestTest(t *testing.T, api string, requestBody string, responseStatu
 }
 
 func TestWelcome(t *testing.T) {
-	resp, err := http.Get(host + ":" + port + home)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if resp.StatusCode != http.StatusOK {
-		t.Errorf("Unexpected status: %v", resp.StatusCode)
-	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if !strings.Contains(string(body), "Welcome to Chirpy") {
-		t.Errorf("Unexpected body: %v", string(body))
-	}
+	getRequestTest(t, home, http.StatusOK, "Welcome to Chirpy", false)
 }
 
 func TestLogo(t *testing.T) {
-	resp, err := http.Get(host + ":" + port + assets)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if resp.StatusCode != http.StatusOK {
-		t.Errorf("Unexpected status: %v", resp.StatusCode)
-	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if !strings.Contains(string(body), `<a href="logo.png">logo.png</a>`) {
-		t.Errorf("Unexpected body: %v", string(body))
-	}
+	getRequestTest(t, assets, http.StatusOK, `<a href="logo.png">logo.png</a>`, false)
 }
 
 func TestHealth(t *testing.T) {
-	resp, err := http.Get(host + ":" + port + healthAPI)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if resp.StatusCode != http.StatusOK {
-		t.Errorf("Unexpected status: %v", resp.StatusCode)
-	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if string(body) != "OK" {
-		t.Errorf("Unexpected body: %v", string(body))
-	}
+	getRequestTest(t, healthAPI, http.StatusOK, "OK", true)
 }
 
 func TestMetrics(t *testing.T) {
-	resp, err := http.Get(host + ":" + port + resetAPI)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if resp.StatusCode != http.StatusOK {
-		t.Errorf("Unexpected status: %v", resp.StatusCode)
-	}
-
-	resp, err = http.Get(host + ":" + port + metricsAPI)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if resp.StatusCode != http.StatusOK {
-		t.Errorf("Unexpected status: %v", resp.StatusCode)
-	}
-
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if !strings.Contains(string(body), "0 times") {
-		t.Errorf("Unexpected body: %v", string(body))
-	}
-
-	resp, err = http.Get(host + ":" + port + home)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if resp.StatusCode != http.StatusOK {
-		t.Errorf("Unexpected status: %v", resp.StatusCode)
-	}
-
-	resp, err = http.Get(host + ":" + port + metricsAPI)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if resp.StatusCode != http.StatusOK {
-		t.Errorf("Unexpected status: %v", resp.StatusCode)
-	}
-
-	defer resp.Body.Close()
-	body, err = io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatal(err.Error())
-	} else if !strings.Contains(string(body), "1 times") {
-		t.Errorf("Unexpected body: %v", string(body))
-	}
+	getRequestTest(t, resetAPI, http.StatusOK, "", true)
+	getRequestTest(t, metricsAPI, http.StatusOK, "0 times", false)
+	getRequestTest(t, home, http.StatusOK, "", false)
+	getRequestTest(t, metricsAPI, http.StatusOK, "1 times", false)
 }
 
 func TestChirp(t *testing.T) {
