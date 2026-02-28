@@ -18,22 +18,22 @@ var commands = map[string]cliCommand{}
 func registerCommands() {
 	commands["exit"] = cliCommand{
 		description: "Exit the Pokedex",
-		callback: commandExit,
+		callback:    commandExit,
 	}
 
 	commands["help"] = cliCommand{
 		description: "Displays a help message",
-		callback: commandHelp,
+		callback:    commandHelp,
 	}
 
 	commands["map"] = cliCommand{
 		description: "Displays the next 20 map locations",
-		callback: commandMap,
+		callback:    commandMap,
 	}
 
 	commands["mapb"] = cliCommand{
 		description: "Displays the last 20 map locations",
-		callback: commandMapBack,
+		callback:    commandMapBack,
 	}
 }
 
@@ -57,15 +57,15 @@ var next_map string = "https://pokeapi.co/api/v2/location-area?offset=0&limit=20
 var prev_map string = ""
 
 type Areas struct {
-	Count int `json:count`
-	Next string `json:next`
-	Previous string `json:previous`
-	Results [20]Area `json:results`
+	Count    int      `json:count`
+	Next     string   `json:next`
+	Previous string   `json:previous`
+	Results  [20]Area `json:results`
 }
 
 type Area struct {
 	Name string `json:name`
-	Url string `json:url`
+	Url  string `json:url`
 }
 
 func commandMap() error {
