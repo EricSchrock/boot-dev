@@ -1,11 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
+
+	"github.com/EricSchrock/boot-dev/pokedex/internal/pokeapi"
 )
 
 type cliCommand struct {
@@ -56,25 +55,16 @@ func commandHelp() error {
 var next_map string = "https://pokeapi.co/api/v2/location-area?offset=0&limit=20"
 var prev_map string = ""
 
-type Areas struct {
-	Count    int      `json:count`
-	Next     string   `json:next`
-	Previous string   `json:previous`
-	Results  [20]Area `json:results`
-}
-
-type Area struct {
-	Name string `json:name`
-	Url  string `json:url`
-}
-
 func commandMap() error {
 	if next_map == "" {
 		fmt.Println("You're on the last page")
 		return nil
 	}
 
-	return getMap(next_map)
+	var err error
+	next_map, prev_map, err = pokeapi.GetMap(next_map)
+
+	return err
 }
 
 func commandMapBack() error {
@@ -83,36 +73,8 @@ func commandMapBack() error {
 		return nil
 	}
 
-	return getMap(prev_map)
-}
+	var err error
+	next_map, prev_map, err = pokeapi.GetMap(prev_map)
 
-func getMap(link string) error {
-	res, err := http.Get(link)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("Status code: %v", res.StatusCode)
-	}
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return err
-	}
-
-	areas := Areas{}
-	if err := json.Unmarshal(body, &areas); err != nil {
-		return err
-	}
-
-	next_map = areas.Next
-	prev_map = areas.Previous
-
-	for _, area := range areas.Results {
-		fmt.Println(area.Name)
-	}
-
-	return nil
+	return err
 }
