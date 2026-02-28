@@ -1,14 +1,9 @@
 package main
 
 import (
-	"github.com/EricSchrock/boot-dev/pokedex/internal/pokeapi"
+	"github.com/EricSchrock/boot-dev/pokedex/internal/repl"
 )
 
 func main() {
-	cfg := &config{
-		nextAreaURL: pokeapi.GetAreasURL(),
-		prevAreaURL: "",
-	}
-
-	startREPL(cfg)
+	repl.StartREPL()
 }

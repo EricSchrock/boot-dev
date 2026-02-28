@@ -1,4 +1,4 @@
-package main
+package repl
 
 import (
 	"bufio"
@@ -19,7 +19,12 @@ type cliCommand struct {
 	callback    func(*config) error
 }
 
-func startREPL(cfg *config) {
+func StartREPL() {
+	cfg := &config{
+		nextAreaURL: pokeapi.GetAreasURL(),
+		prevAreaURL: "",
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
