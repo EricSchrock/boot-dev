@@ -21,19 +21,19 @@ func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"exit": {
 			description: "Exit the Pokedex",
-		callback:    commandExit,
+			callback:    commandExit,
 		},
 		"help": {
 			description: "Displays a help message",
-		callback:    commandHelp,
+			callback:    commandHelp,
 		},
 		"map": {
 			description: "Displays the next 20 map locations",
-		callback:    commandMapForward,
+			callback:    commandMapForward,
 		},
 		"mapb": {
 			description: "Displays the last 20 map locations",
-		callback:    commandMapBack,
+			callback:    commandMapBack,
 		},
 	}
 }
