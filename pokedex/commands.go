@@ -7,74 +7,91 @@ import (
 	"github.com/EricSchrock/boot-dev/pokedex/internal/pokeapi"
 )
 
+type config struct {
+	nextAreaURL string
+	prevAreaURL string
+}
+
 type cliCommand struct {
 	description string
-	callback    func() error
+	callback    func(*config) error
 }
 
-var commands = map[string]cliCommand{}
-
-func registerCommands() {
-	commands["exit"] = cliCommand{
-		description: "Exit the Pokedex",
+func getCommands() map[string]cliCommand {
+	return map[string]cliCommand{
+		"exit": {
+			description: "Exit the Pokedex",
 		callback:    commandExit,
-	}
-
-	commands["help"] = cliCommand{
-		description: "Displays a help message",
+		},
+		"help": {
+			description: "Displays a help message",
 		callback:    commandHelp,
-	}
-
-	commands["map"] = cliCommand{
-		description: "Displays the next 20 map locations",
-		callback:    commandMap,
-	}
-
-	commands["mapb"] = cliCommand{
-		description: "Displays the last 20 map locations",
+		},
+		"map": {
+			description: "Displays the next 20 map locations",
+		callback:    commandMapForward,
+		},
+		"mapb": {
+			description: "Displays the last 20 map locations",
 		callback:    commandMapBack,
+		},
 	}
 }
 
-func commandExit() error {
+func commandExit(cfg *config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp() error {
+func commandHelp(cfg *config) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	fmt.Println()
-	for k, v := range commands {
+	for k, v := range getCommands() {
 		fmt.Printf("%-4s: %s\n", k, v.description)
 	}
 	return nil
 }
 
-var next_map string = "https://pokeapi.co/api/v2/location-area?offset=0&limit=20"
-var prev_map string = ""
-
-func commandMap() error {
-	if next_map == "" {
+func commandMapForward(cfg *config) error {
+	if cfg.nextAreaURL == "" {
 		fmt.Println("You're on the last page")
 		return nil
 	}
 
-	var err error
-	next_map, prev_map, err = pokeapi.GetMap(next_map)
+	areas, err := pokeapi.GetAreas(cfg.nextAreaURL)
+	if err != nil {
+		return err
+	}
 
-	return err
+	for _, area := range areas.Results {
+		fmt.Println(area.Name)
+	}
+
+	cfg.nextAreaURL = areas.Next
+	cfg.prevAreaURL = areas.Previous
+
+	return nil
 }
 
-func commandMapBack() error {
-	if prev_map == "" {
+func commandMapBack(cfg *config) error {
+	if cfg.prevAreaURL == "" {
 		fmt.Println("You're on the first page")
 		return nil
 	}
 
-	var err error
-	next_map, prev_map, err = pokeapi.GetMap(prev_map)
+	areas, err := pokeapi.GetAreas(cfg.prevAreaURL)
+	if err != nil {
+		return err
+	}
 
-	return err
+	for _, area := range areas.Results {
+		fmt.Println(area.Name)
+	}
+
+	cfg.nextAreaURL = areas.Next
+	cfg.prevAreaURL = areas.Previous
+
+	return nil
 }
