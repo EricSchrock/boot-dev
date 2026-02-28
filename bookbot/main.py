@@ -1,5 +1,7 @@
-import argparse
+import sys
 from typing import Dict
+
+from stats import count_words, count_letters
 
 def main(path: str) -> None:
     text = read_book(path)
@@ -11,32 +13,20 @@ def read_book(path: str) -> str:
     with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 
-def count_words(text: str) -> int:
-    return len(text.split())
-
-def count_letters(text: str) -> Dict[str, int]:
-    text = text.lower()
-    letter_count = {}
-    for c in text:
-        if c.isalpha():
-            if not c in letter_count:
-                letter_count[c] = 0
-            letter_count[c] += 1
-    return letter_count
-
 def print_report(path: str, word_count: int, letter_count: Dict[str, int]):
     letter_count = {k: v for k, v in sorted(letter_count.items(), key=lambda item: item[1], reverse=True)}
 
     print(f"--- Begin report of {path} ---")
-    print(f"{word_count} words found in the document")
+    print(f"Found {word_count} total words")
     print()
+    print("Found the following letters")
     for k, v in letter_count.items():
-        print(f"The '{k}' character was found {v} times")
-    print("--- End report ---")
+        print(f"{k}: {v}")
+    print(f"--- End report of {path} ---")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-b', '--book', action='store')
-    args = parser.parse_args()
+    if len(sys.argv) != 2:
+        print("Usage: python3 main.py <path_to_book>")
+        sys.exit(1)
 
-    main(args.book)
+    main(sys.argv[1])
