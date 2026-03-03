@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/EricSchrock/boot-dev/pokedex/internal/pokeapi"
+	"github.com/EricSchrock/boot-dev/pokedex/internal/pokecache"
 )
 
 type config struct {
 	nextAreaURL string
 	prevAreaURL string
+	cache       *pokecache.Cache
 }
 
 type cliCommand struct {
@@ -23,7 +26,9 @@ func StartREPL() {
 	cfg := &config{
 		nextAreaURL: pokeapi.GetAreasURL(),
 		prevAreaURL: "",
+		cache:       pokecache.NewCache(5 * time.Second),
 	}
+	defer cfg.cache.Close()
 
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -103,7 +108,7 @@ func commandMapForward(cfg *config) error {
 		return nil
 	}
 
-	areas, err := pokeapi.GetAreas(cfg.nextAreaURL)
+	areas, err := pokeapi.GetAreas(cfg.nextAreaURL, cfg.cache)
 	if err != nil {
 		return err
 	}
@@ -124,7 +129,7 @@ func commandMapBack(cfg *config) error {
 		return nil
 	}
 
-	areas, err := pokeapi.GetAreas(cfg.prevAreaURL)
+	areas, err := pokeapi.GetAreas(cfg.prevAreaURL, cfg.cache)
 	if err != nil {
 		return err
 	}

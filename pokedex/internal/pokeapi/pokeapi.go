@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/EricSchrock/boot-dev/pokedex/internal/pokecache"
 )
 
 type Areas struct {
@@ -21,20 +23,25 @@ func GetAreasURL() string {
 	return "https://pokeapi.co/api/v2/location-area"
 }
 
-func GetAreas(url string) (Areas, error) {
-	res, err := http.Get(url)
-	if err != nil {
-		return Areas{}, err
-	}
-	defer res.Body.Close()
+func GetAreas(url string, cache *pokecache.Cache) (Areas, error) {
+	body, exists := cache.Get(url)
+	if !exists {
+		res, err := http.Get(url)
+		if err != nil {
+			return Areas{}, err
+		}
+		defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
-		return Areas{}, fmt.Errorf("Status code: %v", res.StatusCode)
-	}
+		if res.StatusCode != http.StatusOK {
+			return Areas{}, fmt.Errorf("Status code: %v", res.StatusCode)
+		}
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return Areas{}, err
+		body, err = io.ReadAll(res.Body)
+		if err != nil {
+			return Areas{}, err
+		}
+
+		cache.Add(url, body)
 	}
 
 	areas := Areas{}
