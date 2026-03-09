@@ -2,6 +2,7 @@ package repl
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
@@ -99,6 +100,10 @@ func getCommands() map[string]cliCommand {
 			description: "Attempt to catch a pokemon",
 			callback:    commandCatch,
 		},
+		"inspect": {
+			description: "Inspect a pokemon from your pokedex",
+			callback:    commandInspect,
+		},
 	}
 }
 
@@ -195,6 +200,26 @@ func commandCatch(cfg *config, args ...string) error {
 	}
 	fmt.Println(args[0], "was caught!")
 	cfg.pokedex[args[0]] = pokemon
+
+	return nil
+}
+
+func commandInspect(cfg *config, args ...string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("You must provide a pokemon to inspect")
+	}
+
+	pokemon, ok := cfg.pokedex[args[0]]
+	if !ok {
+		fmt.Println("You have not caught", args[0], "yet")
+		return nil
+	}
+
+	pretty_pokemon, err := json.MarshalIndent(pokemon, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(pretty_pokemon))
 
 	return nil
 }
