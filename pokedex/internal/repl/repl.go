@@ -19,7 +19,7 @@ type config struct {
 
 type cliCommand struct {
 	description string
-	callback    func(*config, string) error
+	callback    func(*config, ...string) error
 }
 
 func StartREPL() {
@@ -54,12 +54,12 @@ func StartREPL() {
 			continue
 		}
 
-		arg := ""
+		args := []string{}
 		if len(words) > 1 {
-			arg = words[1]
+			args = words[1:]
 		}
 
-		err := c.callback(cfg, arg)
+		err := c.callback(cfg, args...)
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
@@ -95,13 +95,13 @@ func getCommands() map[string]cliCommand {
 	}
 }
 
-func commandExit(cfg *config, _ string) error {
+func commandExit(cfg *config, args ...string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(cfg *config, _ string) error {
+func commandHelp(cfg *config, args ...string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	fmt.Println()
@@ -111,7 +111,7 @@ func commandHelp(cfg *config, _ string) error {
 	return nil
 }
 
-func commandMapForward(cfg *config, _ string) error {
+func commandMapForward(cfg *config, args ...string) error {
 	if cfg.nextAreaURL == "" {
 		fmt.Println("You're on the last page")
 		return nil
@@ -132,7 +132,7 @@ func commandMapForward(cfg *config, _ string) error {
 	return nil
 }
 
-func commandMapBack(cfg *config, _ string) error {
+func commandMapBack(cfg *config, args ...string) error {
 	if cfg.prevAreaURL == "" {
 		fmt.Println("You're on the first page")
 		return nil
@@ -153,10 +153,13 @@ func commandMapBack(cfg *config, _ string) error {
 	return nil
 }
 
-func commandExplore(cfg *config, param string) error {
-	fmt.Printf("Exploring %s...\n", param)
+func commandExplore(cfg *config, args ...string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("You must provide a location to explore")
+	}
 
-	area, err := pokeapi.GetArea(param, cfg.cache)
+	fmt.Printf("Exploring %s...\n", args[0])
+	area, err := pokeapi.GetArea(args[0], cfg.cache)
 	if err != nil {
 		return err
 	}
