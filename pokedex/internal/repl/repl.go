@@ -93,19 +93,19 @@ func getCommands() map[string]cliCommand {
 			callback:    commandMapBack,
 		},
 		"explore": {
-			description: "Lists the pokemon found at the provided location",
+			description: "Lists the Pokemon found at the provided location",
 			callback:    commandExplore,
 		},
 		"catch": {
-			description: "Attempt to catch a pokemon",
+			description: "Attempt to catch a Pokemon",
 			callback:    commandCatch,
 		},
 		"inspect": {
-			description: "Inspect a pokemon from your Pokedex",
+			description: "Inspect a Pokemon from your Pokedex",
 			callback:    commandInspect,
 		},
 		"pokedex": {
-			description: "List the pokemon in your Pokedex",
+			description: "List the Pokemon in your Pokedex",
 			callback:    commandPokedex,
 		},
 	}
@@ -189,7 +189,7 @@ func commandExplore(cfg *config, args ...string) error {
 
 func commandCatch(cfg *config, args ...string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("You must provide a pokemon to catch")
+		return fmt.Errorf("You must provide a Pokemon to catch")
 	}
 
 	fmt.Printf("Throwing a Pokeball at %s...\n", args[0])
@@ -210,7 +210,7 @@ func commandCatch(cfg *config, args ...string) error {
 
 func commandInspect(cfg *config, args ...string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("You must provide a pokemon to inspect")
+		return fmt.Errorf("You must provide a Pokemon to inspect")
 	}
 
 	pokemon, ok := cfg.pokedex[args[0]]
