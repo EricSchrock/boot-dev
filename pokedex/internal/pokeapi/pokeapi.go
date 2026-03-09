@@ -28,6 +28,11 @@ type Area struct {
 	} `json:"pokemon_encounters"`
 }
 
+type Pokemon struct {
+	Name           string `json:"name"`
+	BaseExperience int    `json:"base_experience"`
+}
+
 func GetAreasURL() string {
 	return "https://pokeapi.co/api/v2/location-area"
 }
@@ -83,4 +88,19 @@ func GetArea(location string, cache *pokecache.Cache) (Area, error) {
 	}
 
 	return area, nil
+}
+
+func GetPokemon(name string, cache *pokecache.Cache) (Pokemon, error) {
+	url := "https://pokeapi.co/api/v2/pokemon/" + name
+	body, err := getURL(url, cache)
+	if err != nil {
+		return Pokemon{}, fmt.Errorf("Failed to get '%s': %v", name, err)
+	}
+
+	pokemon := Pokemon{}
+	if err := json.Unmarshal(body, &pokemon); err != nil {
+		return Pokemon{}, err
+	}
+
+	return pokemon, nil
 }

@@ -3,6 +3,7 @@ package repl
 import (
 	"bufio"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -15,6 +16,7 @@ type config struct {
 	nextAreaURL string
 	prevAreaURL string
 	cache       *pokecache.Cache
+	pokedex     map[string]pokeapi.Pokemon
 }
 
 type cliCommand struct {
@@ -27,6 +29,7 @@ func StartREPL() {
 		nextAreaURL: pokeapi.GetAreasURL(),
 		prevAreaURL: "",
 		cache:       pokecache.NewCache(5 * time.Second),
+		pokedex:     make(map[string]pokeapi.Pokemon),
 	}
 	defer cfg.cache.Close()
 
@@ -91,6 +94,10 @@ func getCommands() map[string]cliCommand {
 		"explore": {
 			description: "Lists the pokemon found at the provided location",
 			callback:    commandExplore,
+		},
+		"catch": {
+			description: "Attempt to catch a pokemon",
+			callback:    commandCatch,
 		},
 	}
 }
@@ -167,6 +174,27 @@ func commandExplore(cfg *config, args ...string) error {
 	for _, encounter := range area.PokemonEncounters {
 		fmt.Println(encounter.Pokemon.Name)
 	}
+
+	return nil
+}
+
+func commandCatch(cfg *config, args ...string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("You must provide a pokemon to catch")
+	}
+
+	fmt.Printf("Throwing a Pokeball at %s...\n", args[0])
+	pokemon, err := pokeapi.GetPokemon(args[0], cfg.cache)
+	if err != nil {
+		return err
+	}
+
+	if rand := rand.Intn(pokemon.BaseExperience / 50); rand != 0 {
+		fmt.Println(args[0], "escaped!")
+		return nil
+	}
+	fmt.Println(args[0], "was caught!")
+	cfg.pokedex[args[0]] = pokemon
 
 	return nil
 }
