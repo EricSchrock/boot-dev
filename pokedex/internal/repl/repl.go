@@ -104,6 +104,10 @@ func getCommands() map[string]cliCommand {
 			description: "Inspect a pokemon from your pokedex",
 			callback:    commandInspect,
 		},
+		"pokedex": {
+			description: "List the pokemon in your pokedex",
+			callback:    commandPokedex,
+		},
 	}
 }
 
@@ -220,6 +224,14 @@ func commandInspect(cfg *config, args ...string) error {
 		return err
 	}
 	fmt.Println(string(pretty_pokemon))
+
+	return nil
+}
+
+func commandPokedex(cfg *config, args ...string) error {
+	for k, _ := range cfg.pokedex {
+		fmt.Println(k)
+	}
 
 	return nil
 }
