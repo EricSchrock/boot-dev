@@ -6,7 +6,6 @@ import (
 
 	"github.com/EricSchrock/boot-dev/gator/internal/commands"
 	"github.com/EricSchrock/boot-dev/gator/internal/config"
-	"github.com/EricSchrock/boot-dev/gator/internal/handlers"
 	"github.com/EricSchrock/boot-dev/gator/internal/state"
 )
 
@@ -23,7 +22,7 @@ func main() {
 		Handlers: make(map[string]func(*state.State, commands.Command) error),
 	}
 
-	cmds.Register("login", handlers.HandlerLogin)
+	cmds.Register("login", handleLogin)
 
 	if len(os.Args) < 2 {
 		log.Fatalf("No command provided")

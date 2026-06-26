@@ -1,4 +1,4 @@
-package handlers
+package main
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/EricSchrock/boot-dev/gator/internal/state"
 )
 
-func HandlerLogin(s *state.State, cmd commands.Command) error {
+func handleLogin(s *state.State, cmd commands.Command) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("Expected a username")
 	} else if len(cmd.Args) > 1 {
