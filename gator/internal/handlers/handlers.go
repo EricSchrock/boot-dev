@@ -1,0 +1,22 @@
+package handlers
+
+import (
+	"fmt"
+
+	"github.com/EricSchrock/boot-dev/gator/internal/commands"
+	"github.com/EricSchrock/boot-dev/gator/internal/state"
+)
+
+func HandlerLogin(s *state.State, cmd commands.Command) error {
+	if len(cmd.Args) == 0 {
+		return fmt.Errorf("Expected a username")
+	} else if len(cmd.Args) > 1 {
+		return fmt.Errorf("Expected just a username but got other inputs as well")
+	}
+
+	s.Config.User = cmd.Args[0]
+
+	fmt.Printf("User set to '%v'\n", s.Config.User)
+
+	return nil
+}
