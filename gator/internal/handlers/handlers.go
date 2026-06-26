@@ -14,7 +14,9 @@ func HandlerLogin(s *state.State, cmd commands.Command) error {
 		return fmt.Errorf("Expected just a username but got other inputs as well")
 	}
 
-	s.Config.User = cmd.Args[0]
+	if err := s.Config.SetUser(cmd.Args[0]); err != nil {
+		return err
+	}
 
 	fmt.Printf("User set to '%v'\n", s.Config.User)
 
