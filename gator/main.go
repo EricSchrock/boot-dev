@@ -5,8 +5,11 @@ import (
 	"os"
 
 	"github.com/EricSchrock/boot-dev/gator/internal/config"
-	"github.com/EricSchrock/boot-dev/gator/internal/state"
 )
+
+type state struct {
+	cfg *config.Config
+}
 
 func main() {
 	cfg, err := config.Read()
@@ -14,17 +17,18 @@ func main() {
 		log.Fatalf("Error reading config: %v", err)
 	}
 
-	var s state.State
-	s.Config = &cfg
+	s := &state{
+		cfg: &cfg,
+	}
 
 	cmds := commands{
-		handlers: make(map[string]func(*state.State, command) error),
+		handlers: make(map[string]func(*state, command) error),
 	}
 
 	cmds.register("login", handleLogin)
 
 	if len(os.Args) < 2 {
-		log.Fatalf("No command provided")
+		log.Fatal("No command provided")
 	}
 
 	cmd := command{
@@ -32,7 +36,7 @@ func main() {
 		args: os.Args[2:],
 	}
 
-	err = cmds.run(&s, cmd)
+	err = cmds.run(s, cmd)
 	if err != nil {
 		log.Fatalf("Error running '%v' command: %v", cmd.name, err)
 	}
